@@ -1,1 +1,2 @@
-print('Jujuca Chatolina!'.upper())
+#!/usr/bin/env python3
+print("Jujuca Chatolina!".upper())
