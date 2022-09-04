@@ -1,0 +1,3 @@
+Fabio
+Hello python!
+lkpocli manager api community bootstrap_info
