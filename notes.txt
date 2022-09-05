@@ -1,0 +1,3 @@
+1st note	tech	primeira nota
+2nd note	tech	raios duplos
+OI	blah	texto de tag blah
