@@ -28,16 +28,28 @@ __version__ = "0.1.0"
 import sys
 import os
 from datetime import datetime
+import logging
+
+# LOGGING BOILERPLATE
+log_level = os.getenv("LOG_LEVEL", "WARNING").upper()
+log = logging.Logger("LOGZAO", log_level)
+ch = logging.StreamHandler()
+ch.setLevel(log_level)
+fmt = logging.Formatter(
+    '%(asctime)s %(name)s %(levelname)s l:%(lineno)d f:%(filename)s: %(message)s'
+)
+ch.setFormatter(fmt)
+log.addHandler(ch)
 
 arguments = sys.argv[1:]
 
-# TODO: exceptions
+# Validação
 if not arguments:
     operation = input("Operação: ")
     n1 = input("n1: ")
     n2 = input("n2: ")
     arguments = [operation, n1, n2]
-
+    
 elif len(arguments) != 3:
     print("Número de argumentos inválidos.")
     print("ex: `sum 5 5`")
@@ -62,7 +74,12 @@ for num in nums:
     else:
         num = int(num)
     validated_nums.append(num)
-n1, n2 = validated_nums
+
+try:
+    n1, n2 = validated_nums
+except ValueError as e:
+    print(str(e))
+    sys.exit(2)
 
 
 # TODO: Function dicts
@@ -75,13 +92,19 @@ elif operation == "mul":
 elif operation == "div":
     result = n1 / n2
 
-path = os.curdir
+path = '/' #os.curdir
 filepath = os.path.join(path, "infixcalc.log")
 timestamp = datetime.now().isoformat()
 user = os.getenv("USER", "anonymous")
 
-with open(filepath, "a") as file_:
-    file_.write(f"{timestamp} - {user} - {operation}, {n1}, {n2} = {result}\n")
-
 
 print(f"O resultado é {result}")
+
+try:
+    with open(filepath, "a") as file_:
+        file_.write(f"{timestamp} - {user} - {operation}, {n1}, {n2} = {result}\n")
+except PermissionError as e:
+    log.error("%s", str(e))
+    sys.exit(2)
+
+

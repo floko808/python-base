@@ -22,6 +22,17 @@ __license__ = "Unlicense"
 from argparse import ArgumentParser
 import os
 import sys
+import logging
+
+log_level = os.getenv("LOG_LEVEL", "WARNING").upper()
+log = logging.Logger("LOGZAO", log_level)
+ch = logging.StreamHandler()
+ch.setLevel(log_level)
+fmt = logging.Formatter(
+    '%(asctime)s %(name)s %(levelname)s l:%(lineno)d f:%(filename)s: %(message)s'
+)
+ch.setFormatter(fmt)
+log.addHandler(ch)
 
 
 arguments = {
@@ -30,12 +41,19 @@ arguments = {
 }
 for arg in sys.argv[1:]:
     # TODO: Tratar ValueError
-    key, value = arg.split("=")
+    try:
+        key, value = arg.split("=")
+    except ValueError as e:
+        log.error(
+            "You need to use `=`, You passed %s, try with --key=value: %s", arg, str(e) 
+            )
+        sys.exit(1)
     key = key.lstrip("-").strip()
     value = value.strip()
+    
     if key not in arguments:
         print(f"Invalid option `{key}`")
-        sys.exit()
+        sys.exit(1)
     arguments[key] = value
 
 
