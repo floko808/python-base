@@ -2,33 +2,42 @@
 
 """alarme de temperatura"""
 import sys
+from typing import Dict
+
+# TODO: Mover para modulo de utilidades.
+
+def is_completely_filled(dict_of_inputs: Dict) -> bool:
+    """Returns a boolean telling if a dict is completely filled
+    """
+    info_size = len(dict_of_inputs)
+    filled_size = len([val for val in dict_of_inputs.values() if val is not None])
+    return info_size == filled_size
+  
+def read_inputs_for_dicts(dict_of_info):
+    """Reads information for a dict from user input."""
+    for key in dict_of_info.keys():
+        if dict_of_info[key] is not None:
+            continue
+        try:
+            dict_of_info[key] = int(input(f"{key}: ").strip())
+        except ValueError as e:
+            print(f"{key} inválida. {str(e)}")
+            break
+
+
+# programa principal
 
 info = {
     "temperatura": None,
     "umidade": None
 }
 
+while not is_completely_filled(info):
 
-while True:
+    read_inputs_for_dicts(info)
 
-    info_size = len(info.values())
-    filled_size = len([val for val in info.values() if val is not None])
 
-    if info_size == filled_size:
-        break
-
-    keys = info.keys() # extrai as chaves do dict criando uma lista com as chaves
-
-    for key in keys:
-        try:
-            info[key] = float(input(f"Qual a {key}? ").strip())
-
-        except ValueError as e:
-            print(f"{key} inválida. {str(e)}")
-            sys.exit(1)
-
-temp = info["temperatura"]
-humi = info["umidade"]
+temp, humi = info.values()
 
 
 if temp > 45.0:
