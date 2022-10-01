@@ -43,68 +43,73 @@ log.addHandler(ch)
 
 arguments = sys.argv[1:]
 
-# Validação
-if not arguments:
-    operation = input("Operação: ")
-    n1 = input("n1: ")
-    n2 = input("n2: ")
-    arguments = [operation, n1, n2]
-    
-elif len(arguments) != 3:
-    print("Número de argumentos inválidos.")
-    print("ex: `sum 5 5`")
-    sys.exit(1)
+#valid_operations = ("sum", "sub", "mul", "div")
 
-operation, *nums = arguments
+# Function dicts
+operations = {
+    "sum": lambda a, b: a + b,
+    "sub": lambda a, b: a - b,
+    "mul": lambda a, b: a * b,
+    "div": lambda a, b: a / b,
+}
 
-valid_operations = ("sum", "sub", "mul", "div")
-if operation not in valid_operations:
-    print("Operação inválida!")
-    print(valid_operations)
-    sys.exit(1)
-
-validated_nums = []
-for num in nums:
-    # TODO: while + exceptions
-    if not num.replace(".", "").isdigit():
-        print(f"número inválido {num}")
-        sys.exit(1)
-    if "." in num:
-        num = float(num)
-    else:
-        num = int(num)
-    validated_nums.append(num)
-
-try:
-    n1, n2 = validated_nums
-except ValueError as e:
-    print(str(e))
-    sys.exit(2)
-
-
-# TODO: Function dicts
-if operation == "sum":
-    result = n1 + n2
-elif operation == "sub":
-    result = n1 - n2
-elif operation == "mul":
-    result = n1 * n2
-elif operation == "div":
-    result = n1 / n2
-
-path = '/' #os.curdir
+path = '.' #os.curdir
 filepath = os.path.join(path, "infixcalc.log")
 timestamp = datetime.now().isoformat()
 user = os.getenv("USER", "anonymous")
 
+while True:
+    # Validação
+    if not arguments:
+        operation = input("Operação: ")
+        n1 = input("n1: ")
+        n2 = input("n2: ")
+        arguments = [operation, n1, n2]
+        
+    elif len(arguments) != 3:
+        print("Número de argumentos inválidos.")
+        print("ex: `sum 5 5`")
+        sys.exit(1)
 
-print(f"O resultado é {result}")
+    operation, *nums = arguments
 
-try:
-    with open(filepath, "a") as file_:
-        file_.write(f"{timestamp} - {user} - {operation}, {n1}, {n2} = {result}\n")
-except PermissionError as e:
-    log.error("%s", str(e))
-    sys.exit(2)
+    if operation not in operations:
+        print("Operação inválida!")
+        print(operations)
+        sys.exit(1)
+
+    validated_nums = []
+    for num in nums:
+        # TODO: while + exceptions
+        if not num.replace(".", "").isdigit():
+            print(f"número inválido {num}")
+            sys.exit(1)
+        if "." in num:
+            num = float(num)
+        else:
+            num = int(num)
+        validated_nums.append(num)
+
+    try:
+        n1, n2 = validated_nums
+    except ValueError as e:
+        print(str(e))
+        sys.exit(2)
+
+    result = operations[operation](n1, n2)
+
+    print(f"O resultado é {result}")
+
+    try:
+        with open(filepath, "a") as log:
+            log.write(f"{timestamp} - {user} - {operation}, {n1}, {n2} = {result}\n")
+    except PermissionError as e:
+        log.error("%s", str(e))
+        sys.exit(2)
+
+    arguments = None
+
+    if input("Pressione enter para continuar ou qualquer tecla para sair."):
+        break
 
 
